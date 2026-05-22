@@ -1,8 +1,9 @@
 #!/bin/sh
 
 # Fix permissions for storage and cache (critical for www-data user)
-chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+mkdir -p /var/www/public/images/faces /var/www/public/rfid_images
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/public/images /var/www/public/rfid_images
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/public/images /var/www/public/rfid_images
 
 # Cache configurations
 php artisan config:cache
@@ -16,8 +17,8 @@ php artisan migrate --force
 php artisan db:seed --force || true
 
 # Fix permissions again after artisan commands created new files
-chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/public/images /var/www/public/rfid_images
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/public/images /var/www/public/rfid_images
 
 # Start PHP-FPM in background
 php-fpm -D
