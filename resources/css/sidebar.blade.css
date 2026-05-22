@@ -1,0 +1,36 @@
+/* sidebar.blade.css */
+
+.fixed-sidebar {
+    width: 250px;
+    background-color: #5d0f6b !important;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fixed-sidebar a {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.fixed-sidebar i {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.fixed-sidebar a:hover {
+    background-color: #c8c8c8;
+    color: #000000;
+    border-radius: 20px;
+}
+
+.fixed-sidebar a.btn,
+.fixed-sidebar a.btn:focus {
+    outline: none;
+    box-shadow: none;
+}

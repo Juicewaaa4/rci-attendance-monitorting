@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #FFFEF2;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.left-section {
+    max-width: 55%;
+    margin-top: 12rem;
+}
+
+.left-section h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #000;
+    text-shadow: 2px 2px #aaa;
+    margin-bottom: 0;
+}
+
+.left-section h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 10px;
+    color: #111;
+    text-shadow: 1px 1px #ccc;
+}
+
+.left-section p {
+    margin-top: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #111;
+    text-shadow: 1px 1px #ccc;
+}
+
+/* Buttons Row */
+.buttons {
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    background-color: #5d0f6b;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #9d24b3;
+    transform: translateY(-2px);
+
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease, transform 0.4s ease; 
+    position: absolute;
+    background-color: white;
+    z-index: 1000;
+    width: 100%; /* adjust as needed */
+    visibility: hidden;
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown:focus-within .dropdown-menu {
+    max-height: 500px; /* big enough to show all items */
+    opacity: 1;
+    transform: translateY(-10);
+    visibility: visible;
+}
+
+.dropdown-item:hover {
+    background-color: #eee;
+    color: #2a1a4c;
+}
+
+.dropdown-item:active {
+    transform: scale(0.96);
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
+}
+
+/* Right Section Image */
+.right-section img {
+    width: 320px;
+    border-radius: 30px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    margin-top: 12rem;
+}

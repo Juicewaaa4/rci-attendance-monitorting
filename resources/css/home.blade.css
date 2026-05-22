@@ -1,0 +1,81 @@
+/* Gradient background and layout */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: white;
+    color: white;
+}
+
+/* Main container split layout */
+.welcome-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80vh;
+    padding: 15%;
+}
+
+/* Left section (text) */
+.welcome-left {
+    flex: 1;
+}
+
+.bold-text {
+    font-size: 3rem;
+    font-weight: 800;
+    display: block;
+    margin-bottom: -35px;
+}
+
+.RCI AMS-text {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #000000;
+}
+
+.description {
+    max-width: 500px;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #000000;
+    margin-top: 40px;
+}
+
+/* Right section (logo) */
+.welcome-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-img {
+    width: 500px;
+    border-radius: 25px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Login Button */
+.login-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 30px;
+    font-weight: bold;
+    color: white;
+    background-color: #0d1b4c;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    margin-left: 10rem;
+}
+
+.login-btn:hover {
+    background-color: #1f2e6e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease-in-out;
+}

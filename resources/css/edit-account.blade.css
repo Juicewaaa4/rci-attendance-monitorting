@@ -1,0 +1,141 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #FFFEF2;
+}
+/* Page container */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Card split layout */
+.card {
+    display: flex;
+    flex-direction: row;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    height: 700px;
+}
+
+/* Left-side info section */
+.card .info-panel {
+    background-color: #B4B4B4;
+    color: #333;
+    font-style: italic;
+    padding: 40px;
+    width: 35%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* Right-side form section */
+.card .form-panel {
+ 
+    padding: 40px;
+    width: 65%;
+}
+
+/* Title */
+.card-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #3a3a3a;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    margin-bottom: 80px;
+}
+
+/* Labels */
+.form-label {
+    font-weight: 600;
+    color: #333;
+    text-shadow: 1px 1px #ccc;
+
+}
+
+/* Input fields */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #999;
+    padding: 10px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 25px
+}
+
+.form-control:focus {
+    border-color: #1c2f4a;
+    outline: none;
+    box-shadow: 0 0 6px rgba(28, 47, 74, 0.5);
+}
+
+/* Instruction text */
+.text-muted {
+    font-weight: 600;
+    text-shadow: 1px 1px #c0baba;
+}
+
+/* Horizontal line */
+hr {
+    border-top: 1px solid #999;
+    margin: 20px 0;
+}
+
+/* Button container */
+.d-flex.gap-5 {
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Submit button */
+.btn-primary1 {
+    background-color: #0d1b4c;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+.btn-primary1:hover {
+    background-color: #143057;
+    color: white;
+    transform: translateY(-2px);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Cancel button */
+.btn-secondary2 {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+.btn-secondary2:hover {
+    background-color: #5a6268;
+    color: #fff;
+    transform: translateY(-2px);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card {
+        flex-direction: column;
+    }
+
+    .card .info-panel,
+    .card .form-panel {
+        width: 100%;
+    }
+}

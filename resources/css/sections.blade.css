@@ -1,0 +1,191 @@
+/* ===== Base Styling ===== */
+body {
+    background-color: #FFFEF2; /* muted beige-gray background */
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* ===== Buttons ===== */
+.btn-primary,
+.btn-success,
+.btn-danger {
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+
+    /* === Fix Italic Font on Buttons === */
+    font-style: normal;
+    font-weight: 400;
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-danger:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Specific Colors */
+.btn-success {
+    background-color: #0d1b4c;
+}
+
+.btn-success:hover {
+    background-color: #143057;
+    transform: translateY(-2px);
+}
+
+.delete-department-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: #0d1b4c;
+}
+
+.btn-primary:hover {
+    background-color: #143057;
+    transform: translateY(-2px);
+}
+
+/* ===== Select Boxes ===== */
+.form-select {
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    background-color: #fff;
+}
+
+/* ===== Enhanced Dropdowns: Sort, Order, Count ===== */
+/* ===== Reusable Styled Select Dropdowns ===== */
+.styled-dropdown,
+#section-sort-by,
+#section-order,
+#section-count {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #bbb;
+    border-radius: 10px;
+    padding: 0.45rem 1rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: 
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.2s ease,
+        background-color 0.3s ease,
+        color 0.3s ease;
+    appearance: none;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+/* Hover and Focus */
+.styled-dropdown:hover,
+#school-year-sort-by:hover,
+#section-order:hover,
+#section-count:hover {
+    border-color: #0d1b4c;
+    background-color: #f5f7fb;
+    transform: translateY(-2px);
+}
+
+.styled-dropdown:focus,
+#school-year-sort-by:focus,
+#section-order:focus,
+#section-count:focus {
+    outline: none;
+    border-color: #0d1b4c;
+    box-shadow: 0 0 0 3px rgba(13, 27, 76, 0.2);
+    background-color: #f0f4ff;
+    transform: translateY(-1px);
+}
+
+/* ===== Table Container ===== */
+.table-responsive {
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #ffffff;
+    font-size: 0.875rem;
+}
+
+/* ===== Table ===== */
+.table {
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead {
+    background-color: #0d1b4c;
+    color: #fff;
+}
+
+.table th, .table td {
+    padding: 1rem;
+    vertical-align: middle;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* ===== Table Rounded Corners ===== */
+.table-responsive {
+    border-radius: 16px;
+}
+
+/* ===== Empty State Row ===== */
+.table td.text-center {
+    color: #777;
+    font-style: italic;
+}
+
+/* ===== Modal Button Padding Fix ===== */
+.edit-department-btn,
+.delete-department-btn {
+    min-width: 60px;
+}
+
+/* ===== Responsive Layout Adjustments for Selects ===== */
+form.d-flex.gap-2 > select {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .table th, .table td {
+        font-size: 0.85rem;
+        padding: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.3rem 0.75rem;
+    }
+
+    .form-select {
+        font-size: 0.8rem;
+    }
+
+    form.d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    #department-sort-by,
+    #department-order,
+    #department-count {
+        width: 100%;
+    }
+}

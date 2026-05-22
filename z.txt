@@ -1,0 +1,27 @@
+To be implemented, 
+
+multiple edit/delete
+
+<a href="#" class="btn btn-danger float-end me-2" id="delete-multiple-btn" onclick="event.preventDefault();">Delete Selected</a>
+<a href="#" class="btn btn-warning float-end me-2" id="edit-selected-btn" onclick="event.preventDefault();">Edit Selected</a>
+
+
+in files:
+
+resources\views\page\school\students\index.blade.php
+resources\views\page\school\year-levels\index.blade.php
+resources\views\page\school\sections\index.blade.php
+resources\views\page\school\programs\program.blade.php // rename
+resources\views\page\school\instructors\index.blade.php
+resources\views\page\school\departments\department.blade.php // rename
+
+
+add files similar to:
+
+resources\views\page\school\students\delete-multiple.blade.php
+resources\views\page\school\students\edit-multiple.blade.php
+
+concentrate the js in
+
+resources\js\delete-multiple-modal.js
+resources\js\edit-multiple-modal.js
