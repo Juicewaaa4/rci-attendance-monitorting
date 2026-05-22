@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Each seeder uses firstOrCreate/updateOrInsert to prevent duplicate errors
         $this->call([
             AdminSeeder::class,
             DepartmentSeeder::class,
