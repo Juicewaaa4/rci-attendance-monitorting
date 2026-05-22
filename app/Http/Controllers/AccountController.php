@@ -131,19 +131,36 @@ class AccountController
         ]);
 
         // Create multiple assignments for each selected section
+        $sectionIds = $request->input('section_ids', []);
         
-$sectionIds = $request->input('section_ids', []);
-foreach ($sectionIds as $sectionId) {
-    $section = Section::find($sectionId); // get section with program & dept
-    
-    Assignment::create([
-        'instructor_id' => $account->account_id,
-        'section_id' => $sectionId,
-        'year_level_id' => $section->year_level_id,   // from section
-        'program_id'    => $section->program_id,      // from section
-        'department_id' => $section->department_id,   // from section
-    ]);
-}
+        $deptId = $request->input('department_id') ?? $request->input('department-id');
+        $progId = $request->input('program_id') ?? $request->input('program-id');
+        $yrLevelId = $request->input('year_level_id') ?? $request->input('year-level-id');
+
+        if (!empty($sectionIds)) {
+            foreach ($sectionIds as $sectionId) {
+                $section = Section::find($sectionId); // get section with program & dept
+                
+                Assignment::create([
+                    'instructor_id' => $account->account_id,
+                    'section_id' => $sectionId,
+                    'year_level_id' => $section->year_level_id ?? $yrLevelId,
+                    'program_id'    => $section->program_id ?? $progId,
+                    'department_id' => $section->department_id ?? $deptId,
+                ]);
+            }
+        } else {
+            // If no sections were selected, at least assign them to the department and program
+            if ($deptId || $progId) {
+                Assignment::create([
+                    'instructor_id' => $account->account_id,
+                    'section_id' => null,
+                    'year_level_id' => $yrLevelId,
+                    'program_id'    => $progId,
+                    'department_id' => $deptId,
+                ]);
+            }
+        }
 
 
         $account->save();
@@ -209,17 +226,35 @@ foreach ($sectionIds as $sectionId) {
             'last_name' => $request->input('last-name'),
         ]);
 
-        // Only update assignments if section_ids is present in the request
-        if ($request->has('section_ids')) {
-            Assignment::where('instructor_id', $account->account_id)->delete();
+        $deptId = $request->input('department_id') ?? $request->input('department-id');
+        $progId = $request->input('program_id') ?? $request->input('program-id');
+        $yrLevelId = $request->input('year_level_id') ?? $request->input('year-level-id');
 
-            $sectionIds = $request->input('section_ids', []);
+        // Always delete existing assignments to recreate them based on the new form submission
+        Assignment::where('instructor_id', $account->account_id)->delete();
+
+        $sectionIds = $request->input('section_ids', []);
+        
+        if (!empty($sectionIds)) {
             foreach ($sectionIds as $sectionId) {
+                $section = Section::find($sectionId);
                 Assignment::create([
                     'instructor_id' => $account->account_id,
                     'section_id' => $sectionId,
-                    'program_id' => $request->input('program-id'),
-                    'department_id' => $request->input('department-id'),
+                    'program_id' => $section->program_id ?? $progId,
+                    'department_id' => $section->department_id ?? $deptId,
+                    'year_level_id' => $section->year_level_id ?? $yrLevelId,
+                ]);
+            }
+        } else {
+            // Fallback: assign department and program if no specific sections
+            if ($deptId || $progId) {
+                Assignment::create([
+                    'instructor_id' => $account->account_id,
+                    'section_id' => null,
+                    'program_id' => $progId,
+                    'department_id' => $deptId,
+                    'year_level_id' => $yrLevelId,
                 ]);
             }
         }
