@@ -48,9 +48,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to start a specific camera
     function startCamera(deviceId) {
-        navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } } })
+        const constraints = deviceId ? { video: { deviceId: { exact: deviceId } } } : { video: true };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => video.srcObject = stream)
-            .catch(error => alert("Camera error: " + error));
+            .catch(error => {
+                console.warn("Preferred camera failed, trying default camera...", error);
+                // Fallback to any available camera if the specific one fails
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => video.srcObject = stream)
+                    .catch(err => alert("Camera error: " + err.name + " - " + err.message));
+            });
     }
 
     // Enumerate devices and pick USB webcam
