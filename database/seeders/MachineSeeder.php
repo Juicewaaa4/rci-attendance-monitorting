@@ -15,11 +15,13 @@ class MachineSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Machines
-        Machine::create([
-            'machine_id' => Str::uuid(),
-            'machine_name' => 'Machine1',
-            'password' => Hash::make('159753'), // Default password
-        ]);
+        // Only create Machine1 if it doesn't exist
+        if (!Machine::where('machine_name', 'Machine1')->exists()) {
+            Machine::create([
+                'machine_id' => Str::uuid(),
+                'machine_name' => 'Machine1',
+                'password' => Hash::make('159753'), // Default password
+            ]);
+        }
     }
 }
