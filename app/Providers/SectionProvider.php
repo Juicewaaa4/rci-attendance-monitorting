@@ -34,10 +34,7 @@ class SectionProvider extends ServiceProvider
             'page.school.instructors.edit', 
             'page.school.instructors.delete',
         ], function ($view) {
-            $sections = Cache::remember('sections', now()->addMinutes(30), function () {
-                return  Section::all(); 
-            });
-    
+            $sections = Section::all();
             $view->with('sections', $sections);
         });
     }

@@ -200,9 +200,9 @@ $(document).ready(function () {
 
     // Filter by both program and year level
     let filteredSections = allSections.filter(s => 
-    s.program_id === programId &&
-    s.year_level_id === yearLevelId
-);
+        String(s.program_id) === String(programId) &&
+        String(s.year_level_id) === String(yearLevelId)
+    );
 
     filteredSections = sortSectionsNumerically(filteredSections);
 

@@ -38,7 +38,7 @@ class DepartmentProvider extends ServiceProvider
             'page.school.instructors.edit', 
             'page.school.instructors.delete',
         ], function ($view) { 
-            $departments = Cache::remember('departments', now()->addMinutes(30), fn() => Department::all());
+            $departments = Department::all();
             $view->with('departments', $departments);
         });
     }
