@@ -164,7 +164,7 @@
 
                 <!-- Image -->
                 <td>
-                    <img src="/rfid_images/{{ basename($log->image) }}" 
+                    <img src="{{ asset('rfid_images/' . basename($log->image)) }}" 
                          alt="Student Image" 
                          style="max-width: 100px;">
                 </td>
