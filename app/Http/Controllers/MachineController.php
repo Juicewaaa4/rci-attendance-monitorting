@@ -39,7 +39,11 @@ class MachineController
     $capturedImage = str_replace('data:image/png;base64,', '', $imageData);
     $capturedImage = str_replace(' ', '+', $capturedImage);
     $capturedImageName = 'captured_' . Str::uuid() . '.png';
-    $capturedImagePath = public_path('rfid_images/' . $capturedImageName);
+    $rfidImagesFolder = public_path('rfid_images');
+    if (!is_dir($rfidImagesFolder)) {
+        mkdir($rfidImagesFolder, 0755, true);
+    }
+    $capturedImagePath = $rfidImagesFolder . '/' . $capturedImageName;
     file_put_contents($capturedImagePath, base64_decode($capturedImage));
 
     // Fetch precomputed face encoding from DB
