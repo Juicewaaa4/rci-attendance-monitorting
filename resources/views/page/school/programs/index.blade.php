@@ -59,14 +59,14 @@
                         <tr>
                             <td>{{ $program->program_name }}</td>
                             <td>{{ $program->program_description ?? 'N/A'}}</td>
-                            <td>{{ $program->department->department_name ?? "Doesn't belong in a department" }}</td>
+                            <td>{{ $program->department?->department_name ?? "Doesn't belong in a department" }}</td>
                             <td>{{ $program->program_code }}</td>
                             <td>
                                 <a href="#" class="btn btn-primary edit-program-btn" data-bs-toggle="modal"
                                     data-bs-target="#editProgramModal" data-id="{{ $program->program_id }}"
                                     data-name="{{ $program->program_name }}" data-description="{{ $program->program_description}}"
                                     data-code="{{ $program->program_code }}"
-                                    data-department-id="{{ $program->department->department_id ?? '' }}">
+                                    data-department-id="{{ $program->department?->department_id ?? '' }}">
                                      <i class="bi bi-pen"></i>
                                     Edit
                                 </a> |

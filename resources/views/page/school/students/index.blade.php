@@ -88,11 +88,11 @@
                         <tr>
                             <td>{{ $student->last_name . ', ' . $student->first_name . ' ' . $student->middle_name}}</td>
                             <td>{{ $student->student_id ?? 'N/A'}}</td>
-                            <td>{{ $student->section->section_name ?? 'N/A' }}</td>
-                            <td>{{ $student->yearLevel->year_level_name ?? 'N/A' }}</td>
-                            <td>{{ $student->schoolYear->school_year_name ?? 'N/A' }}</td>
-                            <td>{{ $student->program->program_name ?? 'N/A' }}</td>
-                            <td>{{ $student->department->department_name ?? 'N/A' }}</td>
+                            <td>{{ $student->section?->section_name ?? 'N/A' }}</td>
+                            <td>{{ $student->yearLevel?->year_level_name ?? 'N/A' }}</td>
+                            <td>{{ $student->schoolYear?->school_year_name ?? 'N/A' }}</td>
+                            <td>{{ $student->program?->program_name ?? 'N/A' }}</td>
+                            <td>{{ $student->department?->department_name ?? 'N/A' }}</td>
                             <td>{{ $student->rfid ?? 'N/A' }}</td>
                             <td class="text-center align-middle">
                                 <a href="#" class="btn btn-primary edit-student-btn" data-bs-toggle="modal"

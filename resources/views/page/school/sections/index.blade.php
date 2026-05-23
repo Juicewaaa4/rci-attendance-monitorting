@@ -74,10 +74,10 @@
                         <tr>
                             <td>{{ $section->section_name }}</td>
                             <td>{{ $section->section_description ?? 'N/A'}}</td>
-                            <td>{{ $section->program->program_name ?? 'N/A' }}</td>
-                            <td>{{ $section->department->department_name ?? 'N/A' }}</td>
-                            <td>{{ $section->yearLevel->year_level_name ?? 'N/A' }}</td>
-                            <td>{{ $section->schoolYear->school_year_name ?? 'N/A' }}</td>
+                            <td>{{ $section->program?->program_name ?? 'N/A' }}</td>
+                            <td>{{ $section->department?->department_name ?? 'N/A' }}</td>
+                            <td>{{ $section->yearLevel?->year_level_name ?? 'N/A' }}</td>
+                            <td>{{ $section->schoolYear?->school_year_name ?? 'N/A' }}</td>
                             <td>{{ $section->section_code ?? 'N/A' }}</td>
                             <td class="text-center align-middle">
 

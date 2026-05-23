@@ -70,7 +70,7 @@
                         @endif
 
                         <td class="align-middle">
-                            {{ $instructor->assignments->first()->department->department_name ?? 'N/A' }}
+                            {{ $instructor->assignments->first()?->department?->department_name ?? 'N/A' }}
                         </td>
 
                         <td class="align-middle">

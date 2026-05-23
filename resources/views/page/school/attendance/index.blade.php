@@ -48,7 +48,7 @@
             <option disabled selected value="">Choose Section...</option>
             @foreach($sections as $section)
                 <option value="{{ $section->section_id }}" {{ request('filter') == $section->section_id ? 'selected' : '' }}>
-                    {{ $section->section_name }} ({{ $section->program->program_name }})
+                    {{ $section->section_name }} ({{ $section->program?->program_name ?? 'No Program' }})
                 </option>
             @endforeach
         </select>

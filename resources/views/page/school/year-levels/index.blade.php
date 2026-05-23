@@ -59,7 +59,7 @@
                             <tr>
                                 <td>{{ $year_level->year_level_name }}</td>
                                 <td>{{ $year_level->year_level_description ?? 'N/A'}}</td>
-                                <td>{{ $year_level->department->department_name ?? "Doesn't belong in a department" }}</td>
+                                <td>{{ $year_level->department?->department_name ?? "Doesn't belong in a department" }}</td>
                                 <td>{{ $year_level->year_level_code}}</td>
                                 <td class="text-center align-middle">
 
