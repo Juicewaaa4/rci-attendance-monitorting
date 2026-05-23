@@ -135,6 +135,8 @@
     <video id="camera" width="100%" autoplay style="border:1px solid #ccc; border-radius:5px;"></video>
     <canvas id="snapshot" style="display:none;"></canvas>
     <input type="hidden" name="face_image" id="face_image_base64">
+    <input type="hidden" name="face_encoding" id="face_encoding_data">
+    <div id="face-status" style="margin-top:5px; font-size:12px; color:#888;">Waiting for capture...</div>
     <button type="button" class="btn btn-primary mt-2" id="capture-btn">Capture Photo</button>
     
     <!-- Placeholder container -->
@@ -160,6 +162,8 @@
 
 <!-- Include jQuery only once -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- face-api.js for browser-based face encoding -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -251,6 +255,26 @@ $(document).ready(function () {
     let canvas = document.getElementById('snapshot');
     let captureBtn = document.getElementById('capture-btn');
     let faceImageInput = document.getElementById('face_image_base64');
+    let faceEncodingInput = document.getElementById('face_encoding_data');
+    let faceStatus = document.getElementById('face-status');
+
+    // Load face-api.js models
+    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model';
+    async function loadModels() {
+        faceStatus.textContent = 'Loading face models...';
+        faceStatus.style.color = '#888';
+        try {
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+            faceStatus.textContent = 'Face models ready. Capture photo to proceed.';
+            faceStatus.style.color = 'green';
+        } catch(e) {
+            faceStatus.textContent = 'Warning: Face models failed to load. ' + e.message;
+            faceStatus.style.color = 'orange';
+        }
+    }
+    loadModels();
 
     async function initCamera() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -287,8 +311,8 @@ $(document).ready(function () {
     
     initCamera();
 
-    // Capture photo
-    captureBtn.addEventListener('click', function () {
+    // Capture photo and generate face encoding
+    captureBtn.addEventListener('click', async function () {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -297,11 +321,39 @@ $(document).ready(function () {
 
         document.getElementById('captured-preview-container').innerHTML =
             `<img src="${dataUrl}" alt="Captured Image" style="display:block; max-width:100%; border-radius:5px;" />`;
+
+        // Generate face encoding using face-api.js
+        faceStatus.textContent = 'Detecting face and generating encoding...';
+        faceStatus.style.color = '#888';
+        try {
+            const detection = await faceapi
+                .detectSingleFace(canvas)
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            if (detection) {
+                const descriptor = Array.from(detection.descriptor);
+                faceEncodingInput.value = JSON.stringify(descriptor);
+                faceStatus.textContent = '✅ Face detected! Encoding generated successfully.';
+                faceStatus.style.color = 'green';
+            } else {
+                faceEncodingInput.value = '';
+                faceStatus.textContent = '⚠️ No face detected. Please retake photo facing the camera.';
+                faceStatus.style.color = 'red';
+            }
+        } catch(e) {
+            faceEncodingInput.value = '';
+            faceStatus.textContent = '⚠️ Face encoding failed: ' + e.message;
+            faceStatus.style.color = 'orange';
+        }
     });
 
     // Reset when modal closes
     $('#create-student-modal').on('hidden.bs.modal', function () {
         faceImageInput.value = '';
+        faceEncodingInput.value = '';
+        faceStatus.textContent = 'Waiting for capture...';
+        faceStatus.style.color = '#888';
         document.getElementById('captured-preview-container').innerHTML = 'No photo taken';
     });
 

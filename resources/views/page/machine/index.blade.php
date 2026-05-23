@@ -36,8 +36,9 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const video = document.getElementById('videoElement');
     const rfidInput = document.getElementById('rfidInput');
     const canvas = document.getElementById('canvas');
@@ -45,6 +46,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Autofocus RFID field
     rfidInput.focus();
+
+    // Load face-api.js models
+    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model';
+    async function loadModels() {
+        console.log('Loading face models...');
+        try {
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+            console.log('Face models loaded successfully');
+        } catch(e) {
+            console.error('Face models failed to load: ', e);
+        }
+    }
+    await loadModels();
 
     // Function to start a specific camera
     function startCamera(deviceId) {
@@ -90,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    function processAttendance(rfid) {
+    async function processAttendance(rfid) {
         // Capture image
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -99,11 +115,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         Swal.fire({
             title: 'Processing...',
-            text: 'Please wait while we process the data.',
+            text: 'Scanning face and verifying RFID...',
             showConfirmButton: false,
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading()
         });
+
+        // Generate face encoding
+        let faceEncoding = null;
+        try {
+            const detection = await faceapi.detectSingleFace(canvas).withFaceLandmarks().withFaceDescriptor();
+            if (detection) {
+                faceEncoding = Array.from(detection.descriptor);
+            }
+        } catch(e) {
+            console.error('Face detection failed:', e);
+        }
 
         fetch('/process/login/rfid', {
             method: 'POST',
@@ -111,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ rfid: rfid, image: imageData })
+            body: JSON.stringify({ rfid: rfid, image: imageData, face_encoding: faceEncoding })
         })
         .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);

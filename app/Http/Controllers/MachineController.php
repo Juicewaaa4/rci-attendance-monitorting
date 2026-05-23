@@ -53,7 +53,16 @@ class MachineController
     }
 
     // Compare captured face with precomputed encoding
-    $match = $this->compareFacesWithEncoding($capturedImagePath, $storedEncoding);
+    $capturedEncoding = $request->input('face_encoding');
+    if (!$capturedEncoding) {
+        if (file_exists($capturedImagePath)) unlink($capturedImagePath);
+        return response()->json([
+            'success' => false,
+            'message' => 'No face detected in the image. Please look at the camera.',
+        ]);
+    }
+
+    $match = $this->compareFacesWithEncoding($capturedEncoding, $storedEncoding);
 
     if (!$match) {
         if (file_exists($capturedImagePath)) unlink($capturedImagePath);
@@ -138,26 +147,29 @@ class MachineController
 
 
     /**
-     * Compare captured face image with precomputed face encoding
+     * Compare captured face encoding with precomputed face encoding
+     * using Euclidean distance (standard for face-api.js descriptors)
      */
-    private function compareFacesWithEncoding($capturedImagePath, $storedEncoding)
+    private function compareFacesWithEncoding($capturedEncodingStr, $storedEncodingStr)
     {
-        $pythonScript = base_path('verify_face.py');
+        $capturedEncoding = is_array($capturedEncodingStr) ? $capturedEncodingStr : json_decode($capturedEncodingStr, true);
+        $storedEncoding = is_array($storedEncodingStr) ? $storedEncodingStr : json_decode($storedEncodingStr, true);
 
-        $command = escapeshellcmd(
-            "python " . escapeshellarg($pythonScript) . " "
-            . escapeshellarg($capturedImagePath) . " "
-            . escapeshellarg($storedEncoding)
-        );
-
-        $output = shell_exec($command);
-        $result = json_decode($output, true);
-
-        if (isset($result['error'])) {
-            \Log::error("Face verification error: " . $result['error']);
+        if (!is_array($capturedEncoding) || !is_array($storedEncoding) || count($capturedEncoding) !== 128 || count($storedEncoding) !== 128) {
+            \Log::error("Invalid face encodings during verification");
             return false;
         }
 
-        return !empty($result['match']) && $result['match'] === true;
+        $sum = 0;
+        for ($i = 0; $i < 128; $i++) {
+            $diff = $capturedEncoding[$i] - $storedEncoding[$i];
+            $sum += $diff * $diff;
+        }
+        $distance = sqrt($sum);
+
+        \Log::info("Face distance: " . $distance);
+
+        // face-api.js threshold is usually around 0.5 to 0.6
+        return $distance < 0.55;
     }
 }

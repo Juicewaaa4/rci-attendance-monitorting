@@ -138,30 +138,20 @@ public function createStudentRecord(Request $request)
 
             $studentRecord->face_image = $filename;
 
-            // === Face encoding with fixed Python path ===
-            $pythonPath = '"C:\\Program Files\\Python311\\python.exe"';
-$scriptPath = '"' . base_path('scripts/generate_encoding.py') . '"';
-$imagePath = '"images/faces/' . basename($path) . '"';  // ✅ pass relative path
-
-
-            $command = "$pythonPath $scriptPath $imagePath";
-
-            \Log::info('Python command: ' . $command);
-
-            $output = shell_exec($command);
-            \Log::info('Python raw output: ' . $output);
-
-            $result = json_decode($output, true);
-
-            if ($result === null) {
-                \Log::error('Failed to decode JSON from Python output. Raw output: ' . $output);
-            } elseif (isset($result['encoding'])) {
-                $studentRecord->face_encoding = json_encode($result['encoding']);
-                \Log::info('Face encoding saved successfully for student ID: ' . $studentRecord->student_id);
+            // === Save face encoding from browser (face-api.js) ===
+            if ($request->filled('face_encoding')) {
+                $encodingRaw = $request->input('face_encoding');
+                $decoded = json_decode($encodingRaw, true);
+                if (is_array($decoded) && count($decoded) === 128) {
+                    $studentRecord->face_encoding = $encodingRaw;
+                    \Log::info('Face encoding saved via face-api.js for student: ' . $studentRecord->student_id);
+                } else {
+                    \Log::error('Invalid face encoding received for student: ' . $studentRecord->student_id);
+                }
             } else {
-                \Log::error('Face encoding failed for student ID: ' . $studentRecord->student_id . ' Error: ' . ($result['error'] ?? 'Unknown'));
+                \Log::warning('No face encoding submitted for student: ' . $studentRecord->student_id);
             }
-            // ===========================================
+            // ===================================================
         }
     }
 
