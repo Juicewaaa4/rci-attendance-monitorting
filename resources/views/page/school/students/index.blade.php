@@ -133,6 +133,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('search');
+            if (!searchInput) return;
             const tableRows = document.querySelectorAll('tbody tr');
 
             searchInput.addEventListener('keyup', function () {
