@@ -77,15 +77,30 @@ document.addEventListener('DOMContentLoaded', async function () {
         video.srcObject = null;
     }
 
-    // Check if the video is producing real frames (not black/frozen)
-    function isVideoActive() {
-        return video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0;
+    // Sample actual pixels to detect a black/dead stream
+    function isCameraBlack() {
+        try {
+            const testCanvas = document.createElement('canvas');
+            testCanvas.width = 64;
+            testCanvas.height = 64;
+            const testCtx = testCanvas.getContext('2d');
+            testCtx.drawImage(video, 0, 0, 64, 64);
+            const pixels = testCtx.getImageData(0, 0, 64, 64).data;
+            let total = 0;
+            for (let i = 0; i < pixels.length; i += 4) {
+                total += pixels[i] + pixels[i + 1] + pixels[i + 2];
+            }
+            const avg = total / (pixels.length / 4 * 3);
+            return avg < 8; // brightness below 8/255 = effectively black
+        } catch (e) {
+            return false;
+        }
     }
 
-    // Start camera with retry logic
-    async function startCamera(attempt = 1, maxAttempts = 3) {
+    // Start camera with retry logic + black-frame detection
+    async function startCamera(attempt = 1, maxAttempts = 4) {
         stopCamera();
-        cameraStatus.textContent = attempt > 1 ? `Retrying camera (attempt ${attempt})...` : 'Starting camera...';
+        cameraStatus.textContent = attempt > 1 ? `🔄 Retrying camera (attempt ${attempt} of ${maxAttempts})...` : '⏳ Starting camera...';
         cameraStatus.style.color = '#888';
         retryCameraBtn.style.display = 'none';
 
@@ -96,29 +111,53 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
+        // Check permission state
+        if (navigator.permissions) {
+            try {
+                const perm = await navigator.permissions.query({ name: 'camera' });
+                if (perm.state === 'denied') {
+                    cameraStatus.innerHTML = '❌ Camera blocked. Click the 🔒 icon in the address bar and allow camera, then refresh.';
+                    cameraStatus.style.color = 'red';
+                    retryCameraBtn.style.display = 'inline-block';
+                    return;
+                }
+            } catch(e) { /* permissions API not supported */ }
+        }
+
+        // Drop constraints on later attempts (fallback to any camera)
+        const videoConstraints = attempt <= 2
+            ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+            : true;
+
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                video: videoConstraints,
                 audio: false
             });
 
             currentStream = stream;
+            video.srcObject = null; // clear stale srcObject
+            await new Promise(r => setTimeout(r, 100));
             video.srcObject = stream;
 
-            // Wait for metadata and verify frames are coming through
+            // Wait for metadata + play
             await new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => reject(new Error('Camera stream timed out')), 8000);
+                const timeout = setTimeout(() => reject(new Error('Camera timed out after 10s')), 10000);
                 video.onloadedmetadata = () => {
                     clearTimeout(timeout);
                     video.play().then(resolve).catch(reject);
                 };
-                video.onerror = (e) => { clearTimeout(timeout); reject(new Error('Video element error')); };
+                video.onerror = () => { clearTimeout(timeout); reject(new Error('Video element error')); };
             });
 
-            // Extra check: give a moment then verify actual frame data
-            await new Promise(r => setTimeout(r, 500));
-            if (!isVideoActive()) {
-                throw new Error('Camera stream is black or inactive');
+            // Longer warm-up so camera sensor has time to produce real light
+            await new Promise(r => setTimeout(r, 1200));
+
+            if (!video.videoWidth || !video.videoHeight) {
+                throw new Error('Camera reported 0×0 — stream invalid');
+            }
+            if (isCameraBlack()) {
+                throw new Error('Camera is black (no light). May be covered or used by another app.');
             }
 
             cameraStatus.textContent = '✅ Camera active.';
@@ -129,12 +168,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             stopCamera();
 
             if (attempt < maxAttempts) {
-                // Wait 1.5s between retries
-                await new Promise(r => setTimeout(r, 1500));
+                await new Promise(r => setTimeout(r, 2000));
                 return startCamera(attempt + 1, maxAttempts);
             }
 
-            cameraStatus.textContent = '❌ Camera failed: ' + err.message + '. Click Retry below.';
+            cameraStatus.innerHTML = '❌ Camera failed: ' + err.message +
+                '<br><small>Close other apps/tabs using the camera, then click Retry. Or check camera permissions in the browser address bar (🔒).</small>';
             cameraStatus.style.color = 'red';
             retryCameraBtn.style.display = 'inline-block';
         }
