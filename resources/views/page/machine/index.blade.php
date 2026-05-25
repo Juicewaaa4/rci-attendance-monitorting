@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Face models failed to load: ', e);
         }
     }
-    await loadModels();
+    // Start loading models in the background (do not await)
+    loadModels();
 
     let currentStream = null;
 

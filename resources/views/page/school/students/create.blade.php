@@ -130,7 +130,7 @@
                     </div>
 
                     <div class="row">
-    <<div class="col-md-12 mb-3">
+                        <div class="col-md-12 mb-3">
     <label class="form-label">Face Image</label>
     <video id="camera" width="100%" autoplay playsinline muted style="border:1px solid #ccc; border-radius:5px;"></video>
     <canvas id="snapshot" style="display:none;"></canvas>
