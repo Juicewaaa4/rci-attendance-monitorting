@@ -23,7 +23,7 @@
                     </div>
 
                     <!-- Camera video -->
-                    <video id="videoElement" autoplay style="width: 100%; border-radius: 8px;"></video>
+                    <video id="videoElement" autoplay playsinline muted style="width: 100%; border-radius: 8px;"></video>
 
                     <div class="mt-3">
                         <!-- RFID field is always focused -->
