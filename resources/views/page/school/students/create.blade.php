@@ -277,45 +277,86 @@ $(document).ready(function () {
     loadModels();
 
     let currentStream = null;
+    let cameraRetryBtn = null;
 
-    async function initCamera() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            faceStatus.textContent = 'Browser does not support camera access.';
-            faceStatus.style.color = 'red';
-            return;
-        }
+    // Inject a retry button below the video
+    (function () {
+        cameraRetryBtn = document.createElement('button');
+        cameraRetryBtn.type = 'button';
+        cameraRetryBtn.className = 'btn btn-warning btn-sm mt-1';
+        cameraRetryBtn.textContent = '\uD83D\uDD04 Retry Camera';
+        cameraRetryBtn.style.display = 'none';
+        video.parentNode.insertBefore(cameraRetryBtn, video.nextSibling);
+        cameraRetryBtn.addEventListener('click', () => initCamera());
+    })();
 
-        // Stop any existing stream first
+    // Check if video is producing actual frames
+    function isVideoActive() {
+        return video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0;
+    }
+
+    function stopCamera() {
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
             currentStream = null;
-            video.srcObject = null;
+        }
+        video.srcObject = null;
+    }
+
+    async function initCamera(attempt = 1, maxAttempts = 3) {
+        stopCamera();
+        cameraRetryBtn.style.display = 'none';
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            faceStatus.textContent = 'Browser does not support camera access.';
+            faceStatus.style.color = 'red';
+            cameraRetryBtn.style.display = 'inline-block';
+            return;
         }
 
+        faceStatus.textContent = attempt > 1 ? `Retrying camera (attempt ${attempt})...` : 'Starting camera...';
+        faceStatus.style.color = '#888';
+
         try {
-            currentStream = await navigator.mediaDevices.getUserMedia({
+            const stream = await navigator.mediaDevices.getUserMedia({
                 video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
                 audio: false
             });
 
-            video.srcObject = currentStream;
+            currentStream = stream;
+            video.srcObject = stream;
 
-            // Wait for video to be ready before playing
-            video.onloadedmetadata = function () {
-                video.play().then(() => {
-                    console.log('Camera started. Resolution:', video.videoWidth, 'x', video.videoHeight);
-                    faceStatus.textContent = 'Camera active. Capture photo to proceed.';
-                    faceStatus.style.color = 'green';
-                }).catch(playErr => {
-                    console.error('Video play failed:', playErr);
-                    faceStatus.textContent = 'Camera loaded but could not play: ' + playErr.message;
-                    faceStatus.style.color = 'red';
-                });
-            };
+            // Wait for metadata + play
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(new Error('Camera stream timed out')), 8000);
+                video.onloadedmetadata = () => {
+                    clearTimeout(timeout);
+                    video.play().then(resolve).catch(reject);
+                };
+                video.onerror = () => { clearTimeout(timeout); reject(new Error('Video element error')); };
+            });
+
+            // Give a moment then verify real frames
+            await new Promise(r => setTimeout(r, 500));
+            if (!isVideoActive()) {
+                throw new Error('Camera stream is black or inactive');
+            }
+
+            console.log('Camera started. Resolution:', video.videoWidth, 'x', video.videoHeight);
+            faceStatus.textContent = 'Camera active. Capture photo to proceed.';
+            faceStatus.style.color = 'green';
         } catch (err) {
-            console.error("Camera error:", err);
-            faceStatus.textContent = 'Cannot access camera: ' + err.message;
+            console.error(`Camera attempt ${attempt} failed:`, err);
+            stopCamera();
+
+            if (attempt < maxAttempts) {
+                await new Promise(r => setTimeout(r, 1500));
+                return initCamera(attempt + 1, maxAttempts);
+            }
+
+            faceStatus.textContent = 'Cannot access camera: ' + err.message + '. Click Retry.';
             faceStatus.style.color = 'red';
+            cameraRetryBtn.style.display = 'inline-block';
         }
     }
     
@@ -370,12 +411,8 @@ $(document).ready(function () {
 
     // Reset when modal closes
     $('#create-student-modal').on('hidden.bs.modal', function () {
-        // Stop the camera
-        if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
-            currentStream = null;
-        }
-        video.srcObject = null;
+        stopCamera();
+        cameraRetryBtn.style.display = 'none';
 
         faceImageInput.value = '';
         faceEncodingInput.value = '';

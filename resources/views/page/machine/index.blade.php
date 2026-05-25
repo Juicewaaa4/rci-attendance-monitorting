@@ -24,6 +24,8 @@
 
                     <!-- Camera video -->
                     <video id="videoElement" autoplay playsinline muted style="width: 100%; border-radius: 8px;"></video>
+                    <div id="camera-status" style="font-size:13px; color:#888; margin-top:4px;">Starting camera...</div>
+                    <button id="retry-camera-btn" class="btn btn-warning btn-sm mt-2" style="display:none;">🔄 Retry Camera</button>
 
                     <div class="mt-3">
                         <!-- RFID field is always focused -->
@@ -43,6 +45,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     const rfidInput = document.getElementById('rfidInput');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const cameraStatus = document.getElementById('camera-status');
+    const retryCameraBtn = document.getElementById('retry-camera-btn');
 
     // Autofocus RFID field
     rfidInput.focus();
@@ -62,10 +66,82 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     await loadModels();
 
-    // Request default camera
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => video.srcObject = stream)
-        .catch(err => alert("Camera error: " + err.name + " - " + err.message));
+    let currentStream = null;
+
+    // Stop any existing camera stream
+    function stopCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(t => t.stop());
+            currentStream = null;
+        }
+        video.srcObject = null;
+    }
+
+    // Check if the video is producing real frames (not black/frozen)
+    function isVideoActive() {
+        return video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0;
+    }
+
+    // Start camera with retry logic
+    async function startCamera(attempt = 1, maxAttempts = 3) {
+        stopCamera();
+        cameraStatus.textContent = attempt > 1 ? `Retrying camera (attempt ${attempt})...` : 'Starting camera...';
+        cameraStatus.style.color = '#888';
+        retryCameraBtn.style.display = 'none';
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            cameraStatus.textContent = '❌ Browser does not support camera access.';
+            cameraStatus.style.color = 'red';
+            retryCameraBtn.style.display = 'inline-block';
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                audio: false
+            });
+
+            currentStream = stream;
+            video.srcObject = stream;
+
+            // Wait for metadata and verify frames are coming through
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(new Error('Camera stream timed out')), 8000);
+                video.onloadedmetadata = () => {
+                    clearTimeout(timeout);
+                    video.play().then(resolve).catch(reject);
+                };
+                video.onerror = (e) => { clearTimeout(timeout); reject(new Error('Video element error')); };
+            });
+
+            // Extra check: give a moment then verify actual frame data
+            await new Promise(r => setTimeout(r, 500));
+            if (!isVideoActive()) {
+                throw new Error('Camera stream is black or inactive');
+            }
+
+            cameraStatus.textContent = '✅ Camera active.';
+            cameraStatus.style.color = 'green';
+            rfidInput.focus();
+        } catch (err) {
+            console.error(`Camera attempt ${attempt} failed:`, err);
+            stopCamera();
+
+            if (attempt < maxAttempts) {
+                // Wait 1.5s between retries
+                await new Promise(r => setTimeout(r, 1500));
+                return startCamera(attempt + 1, maxAttempts);
+            }
+
+            cameraStatus.textContent = '❌ Camera failed: ' + err.message + '. Click Retry below.';
+            cameraStatus.style.color = 'red';
+            retryCameraBtn.style.display = 'inline-block';
+        }
+    }
+
+    retryCameraBtn.addEventListener('click', () => startCamera());
+    startCamera();
 
     // Detect RFID scan (Enter key triggers process)
     rfidInput.addEventListener('keydown', function (e) {
