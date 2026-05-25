@@ -12,7 +12,7 @@
                     @csrf
 
                     <div class="row">
-                        <img src="{{ asset('images/Format.png') }}" alt="" style="max-width:100%">
+                        <img src="{{ asset('images/format.png') }}" alt="" style="max-width:100%">
                         <p class="text-muted">Please ensure the department, year level, school year, program, and section code <span class="fw-bold">exists</span> to avoid any issues during upload.</p>
                     </div>
                     
