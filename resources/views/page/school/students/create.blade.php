@@ -276,14 +276,16 @@ $(document).ready(function () {
     }
     loadModels();
 
+    let currentStream = null;
+
     async function initCamera() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             console.warn("Browser does not support camera");
             return;
         }
         try {
-            let stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = currentStream;
             video.play();
         } catch (err) {
             console.error("Camera error:", err);
@@ -291,7 +293,10 @@ $(document).ready(function () {
         }
     }
     
-    initCamera();
+    // Start camera only when modal opens
+    $('#create-student-modal').on('shown.bs.modal', function () {
+        initCamera();
+    });
 
     // Capture photo and generate face encoding
     captureBtn.addEventListener('click', async function () {
@@ -332,6 +337,13 @@ $(document).ready(function () {
 
     // Reset when modal closes
     $('#create-student-modal').on('hidden.bs.modal', function () {
+        // Stop the camera
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+        }
+        video.srcObject = null;
+
         faceImageInput.value = '';
         faceEncodingInput.value = '';
         faceStatus.textContent = 'Waiting for capture...';
