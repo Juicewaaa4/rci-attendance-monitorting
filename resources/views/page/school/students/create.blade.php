@@ -361,6 +361,13 @@ $(document).ready(function () {
         }
     });
 
+    // Blur any focused element inside modal BEFORE it gets aria-hidden (fixes Edge warning)
+    $('#create-student-modal').on('hide.bs.modal', function () {
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+    });
+
     // Reset when modal closes
     $('#create-student-modal').on('hidden.bs.modal', function () {
         // Stop the camera
