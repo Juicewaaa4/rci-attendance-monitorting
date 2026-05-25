@@ -97,6 +97,7 @@
                 <th>Instructor</th>
                 <th>Created At</th>
                 <th>Updated At</th>
+                <th>Image</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -115,6 +116,13 @@
                     <td>{{ $log->instructor }}</td>
                     <td>{{ $log->created_at }}</td>
                     <td>{{ $log->updated_at }}</td>
+                    <td>
+                        @if ($log->image)
+                            <img src="{{ asset('rfid_images/' . $log->image) }}" alt="Student Image" style="max-width: 80px; border-radius: 4px;">
+                        @else
+                            <span class="text-muted">No Image</span>
+                        @endif
+                    </td>
                     <td>
                         <button class="btn btn-sm btn-primary edit-btn" style="width:70px;">Edit</button>
                         <button class="btn btn-sm btn-danger delete-btn" style="width:70px;">Delete</button>
