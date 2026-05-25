@@ -62,38 +62,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     await loadModels();
 
-    // Function to start a specific camera
-    function startCamera(deviceId) {
-        const constraints = deviceId ? { video: { deviceId: { exact: deviceId } } } : { video: true };
-        
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(stream => video.srcObject = stream)
-            .catch(error => {
-                console.warn("Preferred camera failed, trying default camera...", error);
-                // Fallback to any available camera if the specific one fails
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => video.srcObject = stream)
-                    .catch(err => alert("Camera error: " + err.name + " - " + err.message));
-            });
-    }
-
-    // Enumerate devices and pick USB webcam
-    navigator.mediaDevices.enumerateDevices()
-        .then(devices => {
-            const videoDevices = devices.filter(d => d.kind === 'videoinput');
-            if (videoDevices.length === 0) {
-                alert('No camera found!');
-                return;
-            }
-
-            console.log('Available cameras:', videoDevices);
-
-            // Look for a device whose label includes "USB"
-            const usbCam = videoDevices.find(d => d.label.toLowerCase().includes('usb')) || videoDevices[0];
-
-            startCamera(usbCam.deviceId);
-        })
-        .catch(err => alert("Error enumerating devices: " + err));
+    // Request default camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => video.srcObject = stream)
+        .catch(err => alert("Camera error: " + err.name + " - " + err.message));
 
     // Detect RFID scan (Enter key triggers process)
     rfidInput.addEventListener('keydown', function (e) {

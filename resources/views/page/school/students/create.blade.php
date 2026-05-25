@@ -282,25 +282,7 @@ $(document).ready(function () {
             return;
         }
         try {
-            // 1. Request basic camera access first to trigger the browser permission prompt
             let stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            
-            // 2. Now enumerate devices (labels and IDs are only visible AFTER permission is granted)
-            let devices = await navigator.mediaDevices.enumerateDevices();
-            let videoDevices = devices.filter(d => d.kind === 'videoinput');
-            let usbCamera = videoDevices.find(d => d.label.toLowerCase().includes("usb"));
-            
-            // 3. Switch to USB camera if found
-            if (usbCamera && usbCamera.deviceId) {
-                stream.getTracks().forEach(track => track.stop()); // Stop default camera
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: usbCamera.deviceId } } });
-                } catch (usbErr) {
-                    console.warn("Could not use USB camera, falling back to default.", usbErr);
-                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                }
-            }
-            
             video.srcObject = stream;
             video.play();
         } catch (err) {
