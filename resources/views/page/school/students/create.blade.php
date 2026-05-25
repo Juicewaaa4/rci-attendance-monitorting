@@ -280,16 +280,42 @@ $(document).ready(function () {
 
     async function initCamera() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.warn("Browser does not support camera");
+            faceStatus.textContent = 'Browser does not support camera access.';
+            faceStatus.style.color = 'red';
             return;
         }
+
+        // Stop any existing stream first
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+            video.srcObject = null;
+        }
+
         try {
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            currentStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                audio: false
+            });
+
             video.srcObject = currentStream;
-            video.play();
+
+            // Wait for video to be ready before playing
+            video.onloadedmetadata = function () {
+                video.play().then(() => {
+                    console.log('Camera started. Resolution:', video.videoWidth, 'x', video.videoHeight);
+                    faceStatus.textContent = 'Camera active. Capture photo to proceed.';
+                    faceStatus.style.color = 'green';
+                }).catch(playErr => {
+                    console.error('Video play failed:', playErr);
+                    faceStatus.textContent = 'Camera loaded but could not play: ' + playErr.message;
+                    faceStatus.style.color = 'red';
+                });
+            };
         } catch (err) {
             console.error("Camera error:", err);
-            alert("Cannot access camera: " + err.message + ". Please allow camera permission.");
+            faceStatus.textContent = 'Cannot access camera: ' + err.message;
+            faceStatus.style.color = 'red';
         }
     }
     
